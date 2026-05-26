@@ -1,10 +1,3 @@
-"""Public tests for Project 3: Pathfinder.
-
-These tests check the required API and important graph edge cases.
-
-Students should add at least 3 meaningful tests of their own.
-"""
-
 from __future__ import annotations
 
 import json
@@ -58,6 +51,7 @@ def test_load_graph_reads_json_file(tmp_path):
         "Food": {"Gate": 4},
         "Stage": {"Gate": 7},
     }
+
     map_path = tmp_path / "map.json"
     map_path.write_text(json.dumps(graph_data), encoding="utf-8")
 
@@ -69,6 +63,7 @@ def test_load_graph_rejects_zero_weight(tmp_path):
         "A": {"B": 0},
         "B": {"A": 0},
     }
+
     map_path = tmp_path / "bad_map.json"
     map_path.write_text(json.dumps(graph_data), encoding="utf-8")
 
@@ -81,6 +76,20 @@ def test_load_graph_rejects_negative_weight(tmp_path):
         "A": {"B": -3},
         "B": {"A": -3},
     }
+
+    map_path = tmp_path / "bad_map.json"
+    map_path.write_text(json.dumps(graph_data), encoding="utf-8")
+
+    with pytest.raises(ValueError):
+        load_graph(str(map_path))
+
+
+def test_load_graph_rejects_non_integer_weight(tmp_path):
+    graph_data = {
+        "A": {"B": "5"},
+        "B": {"A": "5"},
+    }
+
     map_path = tmp_path / "bad_map.json"
     map_path.write_text(json.dumps(graph_data), encoding="utf-8")
 
@@ -149,7 +158,10 @@ def test_dijkstra_missing_start_returns_empty_dict():
 def test_dijkstra_does_not_include_unreachable_nodes():
     graph = disconnected_graph()
 
-    assert dijkstra_distances(graph, "A") == {"A": 0, "B": 2}
+    assert dijkstra_distances(graph, "A") == {
+        "A": 0,
+        "B": 2,
+    }
 
 
 def test_dijkstra_rejects_zero_or_negative_weights():
@@ -166,7 +178,11 @@ def test_dijkstra_rejects_zero_or_negative_weights():
 def test_shortest_path_returns_best_path():
     graph = sample_graph()
 
-    assert shortest_path(graph, "A", "Z") == ["A", "C", "B", "D", "E", "Z"]
+    assert shortest_path(
+        graph,
+        "A",
+        "Z",
+    ) == ["A", "C", "B", "D", "E", "Z"]
 
 
 def test_shortest_path_start_equals_target():
