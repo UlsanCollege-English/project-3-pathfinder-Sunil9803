@@ -1,38 +1,8 @@
-"""Project 3: Pathfinder.
-
-Implement graph utilities for an undirected weighted map.
-
-Rules:
-- Python 3.11+
-- stdlib only
-- weights must be positive integers (no zero or negative weights)
-- graph representation: dict[str, dict[str, int]]
-
-Example graph:
-
-    {
-        "Gate": {
-            "Food Court": 4,
-            "Stage": 7,
-        },
-        "Food Court": {
-            "Gate": 4,
-            "Rest Area": 3,
-        },
-    }
-
-Students:
-- Replace each NotImplementedError with your implementation.
-- Keep function names and parameters exactly as written.
-- Add helper functions if they make your code clearer.
-"""
-
 from __future__ import annotations
 
 from collections import deque
 import heapq
 import json
-import math
 from pathlib import Path
 
 
@@ -61,7 +31,27 @@ def load_graph(path: str) -> Graph:
     This project uses an undirected graph. Your own map should include both
     directions for every edge, such as A -> B and B -> A.
     """
-    raise NotImplementedError
+
+    with open(path, "r", encoding="utf-8") as file:
+        graph = json.load(file)
+
+    if not isinstance(graph, dict):
+        raise ValueError("Graph must be a dictionary")
+
+    for node, neighbors in graph.items():
+
+        if not isinstance(neighbors, dict):
+            raise ValueError("Neighbors must be dictionaries")
+
+        for neighbor, weight in neighbors.items():
+
+            if not isinstance(weight, int):
+                raise ValueError("Weights must be integers")
+
+            if weight <= 0:
+                raise ValueError("Weights must be positive")
+
+    return graph
 
 
 def get_neighbors(graph: Graph, node: str) -> dict[str, int]:
@@ -74,7 +64,8 @@ def get_neighbors(graph: Graph, node: str) -> dict[str, int]:
         get_neighbors(graph, "A") -> {"B": 4}
         get_neighbors(graph, "Z") -> {}
     """
-    raise NotImplementedError
+
+    return graph.get(node, {})
 
 
 def bfs_order(graph: Graph, start: str) -> list[str]:
@@ -91,7 +82,28 @@ def bfs_order(graph: Graph, start: str) -> list[str]:
     - Time: O(V + E)
     - Space: O(V)
     """
-    raise NotImplementedError
+
+    if start not in graph:
+        return []
+
+    visited = set()
+    queue = deque([start])
+    order = []
+
+    visited.add(start)
+
+    while queue:
+
+        current = queue.popleft()
+        order.append(current)
+
+        for neighbor in graph[current]:
+
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+
+    return order
 
 
 def dijkstra_distances(graph: Graph, start: str) -> dict[str, float]:
@@ -118,7 +130,36 @@ def dijkstra_distances(graph: Graph, start: str) -> dict[str, float]:
     - Time: O((V + E) log V)
     - Space: O(V)
     """
-    raise NotImplementedError
+
+    if start not in graph:
+        return {}
+
+    for neighbors in graph.values():
+        for weight in neighbors.values():
+
+            if weight <= 0:
+                raise ValueError("Weights must be positive")
+
+    distances = {start: 0}
+    priority_queue = [(0, start)]
+
+    while priority_queue:
+
+        current_distance, current_node = heapq.heappop(priority_queue)
+
+        if current_distance > distances[current_node]:
+            continue
+
+        for neighbor, weight in graph[current_node].items():
+
+            distance = current_distance + weight
+
+            if neighbor not in distances or distance < distances[neighbor]:
+
+                distances[neighbor] = distance
+                heapq.heappush(priority_queue, (distance, neighbor))
+
+    return distances
 
 
 def shortest_path(graph: Graph, start: str, target: str) -> list[str]:
@@ -139,7 +180,52 @@ def shortest_path(graph: Graph, start: str, target: str) -> list[str]:
     - Dijkstra portion: O((V + E) log V)
     - Path reconstruction: O(P), where P is the number of nodes in the path
     """
-    raise NotImplementedError
+
+    if start not in graph or target not in graph:
+        return []
+
+    if start == target:
+        return [start]
+
+    priority_queue = [(0, start)]
+    distances = {start: 0}
+    previous = {}
+
+    while priority_queue:
+
+        current_distance, current_node = heapq.heappop(priority_queue)
+
+        if current_node == target:
+            break
+
+        for neighbor, weight in graph[current_node].items():
+
+            if weight <= 0:
+                raise ValueError("Weights must be positive")
+
+            distance = current_distance + weight
+
+            if neighbor not in distances or distance < distances[neighbor]:
+
+                distances[neighbor] = distance
+                previous[neighbor] = current_node
+
+                heapq.heappush(priority_queue, (distance, neighbor))
+
+    if target not in distances:
+        return []
+
+    path = []
+    current = target
+
+    while current != start:
+        path.append(current)
+        current = previous[current]
+
+    path.append(start)
+    path.reverse()
+
+    return path
 
 
 def demo() -> None:
@@ -155,7 +241,30 @@ def demo() -> None:
     This function is not directly graded by the public tests, but it is useful
     for your presentation/demo.
     """
-    raise NotImplementedError
+
+    map_path = Path("data/map.json")
+
+    graph = load_graph(map_path)
+
+    print("Campus Pathfinder Demo")
+    print()
+
+    print(f"Locations loaded: {len(graph)}")
+    print()
+
+    start = "Main Gate"
+    target = "Dormitory"
+
+    print(f"BFS from {start}:")
+    print(bfs_order(graph, start))
+    print()
+
+    print(f"Shortest distances from {start}:")
+    print(dijkstra_distances(graph, start))
+    print()
+
+    print(f"Shortest path from {start} to {target}:")
+    print(shortest_path(graph, start, target))
 
 
 if __name__ == "__main__":

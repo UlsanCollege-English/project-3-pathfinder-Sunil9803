@@ -1,26 +1,43 @@
 {
-  "Gate": {
-    "Food Court": 4,
-    "Main Stage": 7
+  "Main Gate": {
+    "Library": 4,
+    "Cafeteria": 6
   },
-  "Food Court": {
-    "Gate": 4,
-    "Rest Area": 3
+
+  "Library": {
+    "Main Gate": 4,
+    "Computer Lab": 3,
+    "Student Center": 5
   },
-  "Main Stage": {
-    "Gate": 7,
-    "First Aid": 2
+
+  "Cafeteria": {
+    "Main Gate": 6,
+    "Gym": 2
   },
-  "Rest Area": {
-    "Food Court": 3,
-    "Game Booth": 5
+
+  "Gym": {
+    "Cafeteria": 2,
+    "Dormitory": 4
   },
-  "First Aid": {
-    "Main Stage": 2,
-    "Game Booth": 6
+
+  "Dormitory": {
+    "Gym": 4,
+    "Parking Lot": 3
   },
-  "Game Booth": {
-    "Rest Area": 5,
-    "First Aid": 6
+
+  "Parking Lot": {
+    "Dormitory": 3,
+    "Student Center": 6
+  },
+
+  "Student Center": {
+    "Library": 5,
+    "Parking Lot": 6,
+    "Computer Lab": 2
+  },
+
+  "Computer Lab": {
+    "Library": 3,
+    "Student Center": 2
   }
 }
